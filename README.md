@@ -22,3 +22,5 @@ cd client
 npm start
 ```
 
+## How to use
+To use visualizer, you have to 
