@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Graphviz } from "graphviz-react"
-import { Graph } from "./components/Graph"
+import { Graphviz } from "graphviz-react";
+import { Graph } from "./components/Graph";
 import './App.css';
 
 function App() {
@@ -58,9 +58,8 @@ function App() {
         <button onClick={clearDots}>clear</button>
       </div>
       <div className="Graph">
-      {idx >= 0 && JSON.stringify(dots[idx].dot) }
-      {idx >= 0 && <Graph dot={JSON.stringify(dots[idx].dot).replace(/\\"/g,'').replace(/\\n/g,'').replace(/[\/\\]/g,'_').replace(/\[/g,'_').replace(/\]/g,'').replace(/\"/gi,'')}/>}
-
+        
+        {idx >= 0 && <Graphviz dot={dots[idx].dot}/>}
       </div>
     </div>
 
@@ -69,8 +68,16 @@ function App() {
 
 export default App;
 
-//{idx >= 0 && <Graphviz 
+// {idx >= 0 && JSON.stringify(dots[idx].dot) }
+
+// {idx >= 0 && <Graphviz 
 //  dot={JSON.stringify(dots[idx].dot).replace(/\\"/g,'').replace(/\\n/g,'').replace(/[\/\\]/g,'_').replace(/\[/g,'_').replace(/\]/g,'').replace(/\*/gi, '')}
-///>}
+// />}
 
 // JSON.stringify(dots[idx].dot).replace(/\\"/g,'').replace(/\\n/g,'').replace(/[\/\\]/g,'_').replace(/\[/g,'_').replace(/\]/g,'').replace(/\"/gi,'')
+
+//       <div className="Graph">
+// {idx >= 0 && JSON.stringify(dots[idx].dot) }
+// {idx >= 0 && <Graph
+//     dot={JSON.stringify(dots[idx].dot).replace(/\\"/g,'').replace(/\\n/g,'').replace(/[\/\\]/g,'_').replace(/\[/g,'_').replace(/\]/g,'').replace(/\"/gi,'')} />}
+// </div>
