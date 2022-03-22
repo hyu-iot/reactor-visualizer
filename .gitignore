@@ -1,1 +1,9 @@
-node_modules/.cache/*
+node_modules/*
+
+reactor-ts/node_modules/*
+
+server/node_modules/*
+
+server/dist/*
+
+client/node_modules/*

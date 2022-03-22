@@ -1,0 +1,4 @@
+[submodule "reactor-ts"]
+	path = reactor-ts
+	url = https://github.com/lf-lang/reactor-ts.git
+	branch = reactor-visualizer
