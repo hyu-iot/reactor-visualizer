@@ -1,35 +1,40 @@
-const express = require("express");
-const app = express();
-
+const app = require('express')();
+const server = require('http').createServer(app);
+const io = require("socket.io")(server);
 const bodyParser = require("body-parser");
-const cors = require("cors");
-const server = require('http').createServer(app)
-const io = require('socket.io')(server);
-
-
-const indexRouter = require("./routes/index");
-const apiRouter = require("./routes/api");
-
-
-app.use(bodyParser.urlencoded({extended:true}));
-app.use(bodyParser.json());
-app.use(cors());
-
-//app.use(indexRouter);
-//app.use("/api", apiRouter);
-
 
 const port = process.env.PORT || 8080;
 
-app.listen(port, ()=> console.log(`listening on port ${port}`));
 
+io.on('connection', (socket) => {
+
+    const request = socket.request;
+
+    const ip = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
+
+    console.log('New client connected! ', ip, socket.id);
+
+    socket.on('test', (msg) => {
+        console.log(`Message from client: ${msg}`);
+    })
+
+});
 
 var dots = [];
 
-app.post("/api/add", function(req, res, next) {
+app.use(bodyParser.json());
+
+
+app.post("/api/add", (req, res, next) => {
     dots.push(req.body);
     console.log(req.body);
     res.json(dots);
-    io.emit("dots", req.body);
 
+    io.emit("dots", req.body);
 });
+
+
+server.listen(8080, () => {
+    console.log(`listening on port ${port}`);
+});
+

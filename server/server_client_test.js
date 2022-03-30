@@ -1,9 +1,22 @@
-const io = require('socket.io-client').io;
+const io = require('socket.io-client');
 
 
 const socket = io.connect('http://localhost:8080');
 
-socket.on('dots', ({dots}) => {
+console.log('check 1', socket.connected);
+
+
+socket.on('dots', (dots) => {
     console.log(dots);
 });
 
+socket.on('connect_error', (err) => {
+    console.log(`connect_error due to ${err.message}`);
+});
+
+
+
+
+setInterval(() => {
+    socket.emit("test", "this is client. hi")
+}, 1000);
