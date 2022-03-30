@@ -6,8 +6,12 @@ const socket = io.connect('http://localhost:8080');
 console.log('check 1', socket.connected);
 
 
-socket.on('dots', (dots) => {
-    console.log(dots);
+socket.on('dotInfoUpdate', (msg) => {
+
+    var {logicalTime, newdot} = msg; 
+
+    console.log(logicalTime);
+    //console.log(newdot);
 });
 
 socket.on('connect_error', (err) => {

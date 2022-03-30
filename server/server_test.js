@@ -2,8 +2,11 @@ const app = require('express')();
 const server = require('http').createServer(app);
 const io = require("socket.io")(server);
 const bodyParser = require("body-parser");
+const cors = require('cors');
 
 const port = process.env.PORT || 8080;
+
+const apiRouter = require('./routes/api');
 
 
 io.on('connection', (socket) => {
@@ -23,6 +26,9 @@ io.on('connection', (socket) => {
 var dots = [];
 
 app.use(bodyParser.json());
+app.use(cors());
+
+app.use("/api", apiRouter);
 
 
 app.post("/api/add", (req, res, next) => {
@@ -30,8 +36,14 @@ app.post("/api/add", (req, res, next) => {
     console.log(req.body);
     res.json(dots);
 
-    io.emit("dots", req.body);
+    io.emit("dotInfoUpdate", {
+
+        "logicalTime": req.body.logicalTime,
+        "newdot": req.body.dot
+    });
 });
+
+
 
 
 server.listen(8080, () => {

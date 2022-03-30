@@ -41,10 +41,10 @@ router.get("/test", function(req, res, next){
     res.json({1: "test"});
 })
 
-router.post("/add", function(req, res, next) {
-    dots.push(req.body);
-    console.log(req.body);
-    res.json(dots);
-});
+// router.post("/add", function(req, res, next) {
+//     dots.push(req.body);
+//     console.log(req.body);
+//     res.json(dots);
+// });
 
 module.exports = router;
