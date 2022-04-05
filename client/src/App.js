@@ -2,65 +2,87 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Graphviz } from "graphviz-react";
 import { Graph } from "./components/Graph";
+import { io } from "socket.io-client";
+
 import './App.css';
+
+
+
 
 function App() {
   const [dots, setdots] = useState([]);
   const [idx, setidx] = useState(-1);
-  const [show, setShow] = useState(false);
+  const [socket, setSocket] = useState(null);
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [cdot, setcdot] = useState(null);
 
-
-  const fetchDots = async () => {
-    try {
-      setdots([]);
-      setidx(-1);
-      setShow(false);
-
-      const response = await axios.get('http://localhost:8080/api/get/all');
-      setdots(response.data);
-    } catch(e) {
-
-    }
-  };
-
-
-  const getDots = (e) => {
-    e.preventDefault();
-    axios.get('http://localhost:8080/api/get/all')
-      .then(response => {setdots(response.data)})
-      .then(()=>{setidx(dots.length - 1)})
-      .then(()=>{console.log(dots[idx]);});
-
-    dots.forEach((element) => {
-      element.dot = element.dot.replace(/\\"/g,'').replace(/\\n/g,'').replace(/[\/\\]/g,'_').replace(/\[/g,'_').replace(/\]/g,'').replace(/\"/gi,'');
-    });
-  };
-
-  const clearDots = (e) => {
-    e.preventDefault();
-    setidx(-1);
-    axios.get('http://localhost:8080/api/clear')
-      .then(() => {console.log('clear dots')})
-      .then(()=>{setShow(false)});
-  };
 
 
   useEffect(() => {
-    fetchDots();
+    setSocket(io('http://localhost:8080', {
+      cors:{origin: "*"}
+    }));
+
+
+
   }, []);
 
+  useEffect(() => {
+    if(!socket) return;
+
+    socket.on('connect', () => {
+      console.log("socket connected");
+      setSocketConnected(true);
+    });
+
+    socket.on('disconnected', () => {
+      console.log("socket disconnected");
+      setSocketConnected(false);
+    });
+
+
+    socket.on('dotInfoUpdate', (msg) => {
+
+      var {logicalTime, newdot} = msg; 
   
+      console.log(logicalTime);
+      console.log(newdot);
+      setcdot(newdot);
+      //setdots([...dots, {logicalTime: logicalTime, dot: newdot}])
+      
+  });
+
+  }, [socket]);
+  
+  const handleSocketConnection = () => {
+    if (socketConnected)
+        socket.disconnect();
+    else
+        socket.connect();
+  };
+
+
   return (
     <div className="App">
       <div className="title">Visualization of Precedence Graph</div>
+      <div>
+        <b>Connection status: </b> {socketConnected ? "Connected" : "Disconnected"}
+      </div>
       <div className="buttons">
-        <button onClick={getDots}>reload</button>
-        <button onClick={clearDots}>clear</button>
+        <button onClick={handleSocketConnection}>{socketConnected ? 'Disconnect' : 'Connect'}</button>
+      </div>
+
+      
+      <div>{idx + 1}<b>/</b>{dots.length}</div>
+
+      <div className="times">
+        {dots.length > 0  && (<div><b>Logical Time: </b> {dots[idx].logicalTime }</div>)}
       </div>
       <div className="Graph">
-        
-        {idx >= 0 && <Graphviz dot={dots[idx].dot}/>}
+        {cdot}
+        {<Graph dot={cdot}/>}
       </div>
+
     </div>
 
   );
