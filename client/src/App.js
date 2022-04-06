@@ -23,8 +23,6 @@ function App() {
       cors:{origin: "*"}
     }));
 
-
-
   }, []);
 
   useEffect(() => {
@@ -41,6 +39,14 @@ function App() {
     });
 
 
+
+
+  }, [socket]);
+  
+
+  useEffect(() => {
+    if(!socket) return;
+
     socket.on('dotInfoUpdate', (msg) => {
 
       var {logicalTime, newdot} = msg; 
@@ -48,12 +54,15 @@ function App() {
       console.log(logicalTime);
       console.log(newdot);
       setcdot(newdot);
-      //setdots([...dots, {logicalTime: logicalTime, dot: newdot}])
+      setidx(idx + 1);
       
+      //setdots([...dots, {logicalTime, newdot}])
+      //console.log(dots);
+
   });
 
-  }, [socket]);
-  
+  });
+
   const handleSocketConnection = () => {
     if (socketConnected)
         socket.disconnect();
