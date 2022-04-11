@@ -2,12 +2,11 @@ import logo from './logo.svg';
 import './App.css';
 
 import React, { useState, useEffect } from 'react';
-import { Graphviz }from "graphviz-react";
-//import { Graph } from "./components/Graph";
 import { io } from "socket.io-client";
-import { render } from '@testing-library/react';
 import * as d3 from 'd3';
 import { graphviz } from 'd3-graphviz';
+//import { Graphviz }from "graphviz-react";
+//import { Graph } from "./components/Graph";
 
 
 const url = 'http://localhost:8080';
@@ -29,7 +28,7 @@ class App extends React.Component {
 
   componentDidMount() {
     this.initSocket();
-    this.renderGraph();
+    //this.renderGraph();
   }
 
   initSocket = () => {
@@ -79,10 +78,9 @@ class App extends React.Component {
     else this.state.socket.emit("requestDot", this.state.startPos + this.state.idx + diff - 1);
   }
 
-
-  renderGraph() {
-    graphviz(`#graph`).renderDot(this.state.cdot);
-  }
+  // renderGraph() {
+  //   graphviz(`#graph`).renderDot(this.state.cdot);
+  // }
 
   render()  {
     
@@ -102,7 +100,7 @@ class App extends React.Component {
           <button onClick={() => this.move(1)}>next</button>
         </div>
         <div><b>Logical Time : </b>{this.state.logicalTime.seconds} seconds {this.state.logicalTime.nanoseconds} nsecs</div>
-
+        {this.state.cdot}
         <div id='graph'></div>
       </div>
     );
@@ -114,62 +112,4 @@ class App extends React.Component {
 
 export default App;
 
-// const [cdot, setcdot] = useState(null);
-// const [requestDot, setrequestDot] = useState(false);
-// const [idx, setidx] = useState(0);
-// const [socket, setsocket] = useState(null);
-// const [isSocketConnected, setisSocketConnected] = useState(false);
-// const [startPos, setstartPos] = useState(-1);
 
-
-// useEffect(() => {
-//   setsocket(io(url, {
-//     cors: {origin: "*"}
-//   }));
-// }, []);
-
-// useEffect(() => {
-//   if(!socket) return;
-
-//   socket.on('connect', () => {
-//     console.log("socket connected");
-//     setisSocketConnected(true);
-//   });
-
-  
-  
-//   socket.on('disconnect', () => {
-//     console.log("socket disconnected");
-//     setisSocketConnected(false);
-//   });
-
-
-//   socket.on('currentCount', (count) => {
-//     console.log(count);
-//     setstartPos(count + 1);
-//     console.log(`start pos: ${startPos}`);
-//   });
-
-//   socket.on("newDotUpdated", (count) => {
-//     console.log(count);
-//     console.log(`start pos: ${startPos}`);
-//     console.log(startPos === count);
-
-//     if (startPos === count){
-//       socket.emit("requestDot", count);
-      
-//       setrequestDot(true);
-
-//     }
-//   });
-
-//   socket.on("sendDot", ({logicalTime, dot}) => {
-//     console.log(logicalTime);
-//     setcdot(dot);
-
-//   });
-
-
-
-
-// }, [socket]);
