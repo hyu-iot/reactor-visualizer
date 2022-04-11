@@ -3,17 +3,14 @@ import './App.css';
 
 import React, { useState, useEffect } from 'react';
 import { Graphviz }from "graphviz-react";
-//import { Graph } from "./components/Graph";
+import { Graph } from "./components/Graph";
 import { io } from "socket.io-client";
 import { render } from '@testing-library/react';
-import * as d3 from 'd3';
-import { graphviz } from 'd3-graphviz';
 
 
 const url = 'http://localhost:8080';
 
 class App extends React.Component {
-
 
   
   state = {
@@ -29,7 +26,6 @@ class App extends React.Component {
 
   componentDidMount() {
     this.initSocket();
-    this.renderGraph();
   }
 
   initSocket = () => {
@@ -80,18 +76,14 @@ class App extends React.Component {
   }
 
 
-  renderGraph() {
-    graphviz(`#graph`).renderDot(this.state.cdot);
-  }
-
   render()  {
-    
-  
+
+    const isSocketConnected = true;
     return (
       <div className="App">
         <div className='title'>Visualization of Precedence Graph</div>
         <div>
-          <b>Connection status: </b> {this.state.isSocketConnected ? "connected" : "disconnected"}
+          <b>Connection status: </b> {isSocketConnected ? "connected" : "disconnected"}
         </div>
 
         <div>
@@ -103,7 +95,10 @@ class App extends React.Component {
         </div>
         <div><b>Logical Time : </b>{this.state.logicalTime.seconds} seconds {this.state.logicalTime.nanoseconds} nsecs</div>
 
-        <div id='graph'></div>
+        <div>
+          {this.state.cdot}
+          <Graph dot={this.state.cdot}/>
+        </div>
       </div>
     );
 

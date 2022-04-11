@@ -60,6 +60,7 @@ app.post("/api/add", (req, res, next) => {
     
     count = count + 1;
     dots[count] = {
+        "id": count,
         "logicalTime": req.body.logicalTime,
         "dot": req.body.dot
     };
