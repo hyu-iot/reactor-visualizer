@@ -1,16 +1,13 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Graphviz } from "graphviz-react";
-import { Graph } from "./components/Graph";
+//import { Graph } from "./components/Graph";
 import { io } from "socket.io-client";
 
 import './App.css';
 
-
-
-
 function App() {
-  const [dots, setdots] = useState([]);
+  const [dots, setdots] = useState({});
   const [idx, setidx] = useState(-1);
   const [socket, setSocket] = useState(null);
   const [socketConnected, setSocketConnected] = useState(false);
@@ -38,28 +35,21 @@ function App() {
       setSocketConnected(false);
     });
 
-
-
-
-  }, [socket]);
-  
-
-  useEffect(() => {
-    if(!socket) return;
-
     socket.on('dotInfoUpdate', (msg) => {
 
       var {logicalTime, newdot} = msg; 
   
-      console.log(logicalTime);
-      console.log(newdot);
+      setdots([...dots, {logicalTime: logicalTime, dot: newdot}])
+      console.log(dots);
+
       setcdot(newdot);
       setidx(idx + 1);
-      
-      //setdots([...dots, {logicalTime, newdot}])
-      //console.log(dots);
 
-  });
+    
+
+  }, [socket]);
+  
+
 
   });
 
@@ -89,7 +79,7 @@ function App() {
       </div>
       <div className="Graph">
         {cdot}
-        {<Graph dot={cdot}/>}
+        {<Graphviz dot={cdot}/>}
       </div>
 
     </div>
@@ -112,3 +102,4 @@ export default App;
 // {idx >= 0 && <Graph
 //     dot={JSON.stringify(dots[idx].dot).replace(/\\"/g,'').replace(/\\n/g,'').replace(/[\/\\]/g,'_').replace(/\[/g,'_').replace(/\]/g,'').replace(/\"/gi,'')} />}
 // </div>
+// hello

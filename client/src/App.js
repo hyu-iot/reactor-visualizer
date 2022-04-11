@@ -1,28 +1,26 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { Graphviz } from "graphviz-react";
-import { Graph } from "./components/Graph";
-import { io } from "socket.io-client";
-
+import logo from './logo.svg';
 import './App.css';
 
+import { useState, useEffect } from 'react';
+import { Graphviz }from "graphviz-react";
+import { io } from "socket.io-client";
 
 
+const url = 'http://localhost:8080';
 
 function App() {
-  const [dots, setdots] = useState([]);
-  const [idx, setidx] = useState(-1);
-  const [socket, setSocket] = useState(null);
-  const [socketConnected, setSocketConnected] = useState(false);
   const [cdot, setcdot] = useState(null);
-
+  const [requestDot, setrequestDot] = useState(false);
+  const [idx, setidx] = useState(0);
+  const [socket, setsocket] = useState(null);
+  const [isSocketConnected, setisSocketConnected] = useState(false);
+  const [startPos, setstartPos] = useState(-1);
 
 
   useEffect(() => {
-    setSocket(io('http://localhost:8080', {
-      cors:{origin: "*"}
+    setsocket(io(url, {
+      cors: {origin: "*"}
     }));
-
   }, []);
 
   useEffect(() => {
@@ -30,85 +28,59 @@ function App() {
 
     socket.on('connect', () => {
       console.log("socket connected");
-      setSocketConnected(true);
+      setisSocketConnected(true);
     });
 
-    socket.on('disconnected', () => {
+    
+    
+    socket.on('disconnect', () => {
       console.log("socket disconnected");
-      setSocketConnected(false);
+      setisSocketConnected(false);
+    });
+
+
+    socket.on('currentCount', (count) => {
+      console.log(count);
+      setstartPos(count + 1);
+      console.log(`start pos: ${startPos}`);
+    });
+
+    socket.on("newDotUpdated", (count) => {
+      console.log(count);
+      console.log(`start pos: ${startPos}`);
+      //console.log(startPos === count);
+
+      if (startPos === count){
+        socket.emit("requestDot", count);
+        
+        setrequestDot(true);
+
+      }
+    });
+
+    socket.on("sendDot", ({logicalTime, dot}) => {
+      console.log(logicalTime);
+      setcdot(dot);
+
     });
 
 
 
 
   }, [socket]);
-  
-
-  useEffect(() => {
-    if(!socket) return;
-
-    socket.on('dotInfoUpdate', (msg) => {
-
-      var {logicalTime, newdot} = msg; 
-  
-      console.log(logicalTime);
-      console.log(newdot);
-      setcdot(newdot);
-      setidx(idx + 1);
-      
-      //setdots([...dots, {logicalTime, newdot}])
-      //console.log(dots);
-
-  });
-
-  });
-
-  const handleSocketConnection = () => {
-    if (socketConnected)
-        socket.disconnect();
-    else
-        socket.connect();
-  };
 
 
   return (
     <div className="App">
-      <div className="title">Visualization of Precedence Graph</div>
+      <div className='title'>Visualization of Precedence Graph</div>
       <div>
-        <b>Connection status: </b> {socketConnected ? "Connected" : "Disconnected"}
-      </div>
-      <div className="buttons">
-        <button onClick={handleSocketConnection}>{socketConnected ? 'Disconnect' : 'Connect'}</button>
+        <b>Connection status: </b> {isSocketConnected ? "connected" : "disconnected"}
       </div>
 
-      
-      <div>{idx + 1}<b>/</b>{dots.length}</div>
-
-      <div className="times">
-        {dots.length > 0  && (<div><b>Logical Time: </b> {dots[idx].logicalTime }</div>)}
-      </div>
-      <div className="Graph">
-        {cdot}
-        {<Graph dot={cdot}/>}
-      </div>
+      <div></div>
 
     </div>
-
   );
 }
 
 export default App;
-
-// {idx >= 0 && JSON.stringify(dots[idx].dot) }
-
-// {idx >= 0 && <Graphviz 
-//  dot={JSON.stringify(dots[idx].dot).replace(/\\"/g,'').replace(/\\n/g,'').replace(/[\/\\]/g,'_').replace(/\[/g,'_').replace(/\]/g,'').replace(/\*/gi, '')}
-// />}
-
-// JSON.stringify(dots[idx].dot).replace(/\\"/g,'').replace(/\\n/g,'').replace(/[\/\\]/g,'_').replace(/\[/g,'_').replace(/\]/g,'').replace(/\"/gi,'')
-
-//       <div className="Graph">
-// {idx >= 0 && JSON.stringify(dots[idx].dot) }
-// {idx >= 0 && <Graph
-//     dot={JSON.stringify(dots[idx].dot).replace(/\\"/g,'').replace(/\\n/g,'').replace(/[\/\\]/g,'_').replace(/\[/g,'_').replace(/\]/g,'').replace(/\"/gi,'')} />}
-// </div>
