@@ -35,7 +35,7 @@ class App extends React.Component {
     document.body.appendChild(script);
 
     this.initSocket();
-    this.renderGraph();
+    //this.renderGraph();
   }
 
   initSocket = () => {
@@ -91,7 +91,7 @@ class App extends React.Component {
   }
 
   render()  {
-    this.renderGraph();
+    //this.renderGraph();
   
     return (
       <div className="App">
@@ -108,7 +108,7 @@ class App extends React.Component {
           <button onClick={() => this.move(1)}>next</button>
         </div>
         <div><b>Logical Time : </b>{this.state.logicalTime.seconds} seconds {this.state.logicalTime.nanoseconds} nsecs</div>
-
+        {this.state.cdot}
         <div id='graph'></div>
       </div>
     );
