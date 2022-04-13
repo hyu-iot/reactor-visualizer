@@ -1,114 +1,115 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { Graphviz } from "graphviz-react";
-import { Graph } from "./components/Graph";
-import { io } from "socket.io-client";
-
+import logo from './logo.svg';
 import './App.css';
 
+import React, { useState, useEffect } from 'react';
+import { io } from "socket.io-client";
+import * as d3 from 'd3';
+import { graphviz } from 'd3-graphviz';
+//import { Graphviz }from "graphviz-react";
+//import { Graph } from "./components/Graph";
 
 
+const url = 'http://localhost:8080';
 
-function App() {
-  const [dots, setdots] = useState([]);
-  const [idx, setidx] = useState(-1);
-  const [socket, setSocket] = useState(null);
-  const [socketConnected, setSocketConnected] = useState(false);
-  const [cdot, setcdot] = useState(null);
+class App extends React.Component {
 
 
+  
+  state = {
+    socket: null,
+    isSocketConnected: false,
+    cdot: null,
+    startPos: -1,
+    idx: 0,
+    logicalTime: 0,
+    numDots: 0
+  }
 
-  useEffect(() => {
-    setSocket(io('http://localhost:8080', {
-      cors:{origin: "*"}
-    }));
 
-  }, []);
+  componentDidMount() {
+    this.initSocket();
+    //this.renderGraph();
+  }
 
-  useEffect(() => {
-    if(!socket) return;
-
+  initSocket = () => {
+    let socket = io(url, {
+      cors: {origin: "*"}
+    });
+    this.setState({ socket });
     socket.on('connect', () => {
       console.log("socket connected");
-      setSocketConnected(true);
+      this.setState({isSocketConnected: true});
     });
 
-    socket.on('disconnected', () => {
+    socket.on('disconnect', () => {
       console.log("socket disconnected");
-      setSocketConnected(false);
+      this.setState({isSocketConnected: false});
     });
 
+    socket.on('currentCount', async (count) => {
+      await this.setState({startPos: count + 1});
+      console.log(`start pos: ${this.state.startPos}`)
+    });
 
+    socket.on("newDotUpdated", async (count) => {
+      console.log(count);
+      //console.log(`start pos: ${this.state.startPos}`);
+      console.log(this.state.startPos === count);
 
+      await this.setState({numDots: count - this.state.startPos + 1});
 
-  }, [socket]);
-  
+      if (this.state.startPos === count){
+        socket.emit("requestDot", count);
+        await this.setState({idx: 1})    
+      }
+    });
 
-  useEffect(() => {
-    if(!socket) return;
-
-    socket.on('dotInfoUpdate', (msg) => {
-
-      var {logicalTime, newdot} = msg; 
-  
+    socket.on("sendDot", async ({id, logicalTime, dot}) => {
+      console.log(`ID: ${id}`);
       console.log(logicalTime);
-      console.log(newdot);
-      setcdot(newdot);
-      setidx(idx + 1);
-      
-      //setdots([...dots, {logicalTime, newdot}])
-      //console.log(dots);
+      await this.setState({logicalTime: logicalTime, cdot: dot, idx: id - this.state.startPos + 1});
+    });
 
-  });
+  }
 
-  });
 
-  const handleSocketConnection = () => {
-    if (socketConnected)
-        socket.disconnect();
-    else
-        socket.connect();
+  move = (diff) => {
+    if (this.state.idx + diff < 1 || this.state.idx + diff > this.state.numDots)  return;
+    else this.state.socket.emit("requestDot", this.state.startPos + this.state.idx + diff - 1);
+  }
+
+  // renderGraph() {
+  //   graphviz(`#graph`).renderDot(this.state.cdot);
+  // }
+
+  render()  {
+    
+  
+    return (
+      <div className="App">
+        <div className='title'>Visualization of Precedence Graph</div>
+        <div>
+          <b>Connection status: </b> {this.state.isSocketConnected ? "connected" : "disconnected"}
+        </div>
+
+        <div>
+          {this.state.idx}/{this.state.numDots}
+        </div>
+        <div>
+          <button onClick={() => this.move(-1)}>prev</button>
+          <button onClick={() => this.move(1)}>next</button>
+        </div>
+        <div><b>Logical Time : </b>{this.state.logicalTime.seconds} seconds {this.state.logicalTime.nanoseconds} nsecs</div>
+        {this.state.cdot}
+        <div id='graph'></div>
+      </div>
+    );
+
   };
 
-
-  return (
-    <div className="App">
-      <div className="title">Visualization of Precedence Graph</div>
-      <div>
-        <b>Connection status: </b> {socketConnected ? "Connected" : "Disconnected"}
-      </div>
-      <div className="buttons">
-        <button onClick={handleSocketConnection}>{socketConnected ? 'Disconnect' : 'Connect'}</button>
-      </div>
-
-      
-      <div>{idx + 1}<b>/</b>{dots.length}</div>
-
-      <div className="times">
-        {dots.length > 0  && (<div><b>Logical Time: </b> {dots[idx].logicalTime }</div>)}
-      </div>
-      <div className="Graph">
-        {cdot}
-        {<Graph dot={cdot}/>}
-      </div>
-
-    </div>
-
-  );
+  
 }
 
 export default App;
 
-// {idx >= 0 && JSON.stringify(dots[idx].dot) }
 
-// {idx >= 0 && <Graphviz 
-//  dot={JSON.stringify(dots[idx].dot).replace(/\\"/g,'').replace(/\\n/g,'').replace(/[\/\\]/g,'_').replace(/\[/g,'_').replace(/\]/g,'').replace(/\*/gi, '')}
-// />}
-
-// JSON.stringify(dots[idx].dot).replace(/\\"/g,'').replace(/\\n/g,'').replace(/[\/\\]/g,'_').replace(/\[/g,'_').replace(/\]/g,'').replace(/\"/gi,'')
-
-//       <div className="Graph">
-// {idx >= 0 && JSON.stringify(dots[idx].dot) }
-// {idx >= 0 && <Graph
-//     dot={JSON.stringify(dots[idx].dot).replace(/\\"/g,'').replace(/\\n/g,'').replace(/[\/\\]/g,'_').replace(/\[/g,'_').replace(/\]/g,'').replace(/\"/gi,'')} />}
-// </div>

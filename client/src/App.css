@@ -1,8 +1,5 @@
 .App {
   text-align: center;
-  width: 100%;
-  height: 100%;
-  align-items: center;
 }
 
 .App-logo {
@@ -38,21 +35,4 @@
   to {
     transform: rotate(360deg);
   }
-}
-
-.title {
-  font-size: 32px;
-  font-weight: 500;
-
-}
-
-.buttons {
-  margin-top: 20px; 
-  flex-direction: row;
-}
-
-.Graph {
-  width: 100%;
-  height: 100%;
-  
 }
