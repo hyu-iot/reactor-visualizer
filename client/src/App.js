@@ -1,9 +1,7 @@
-import logo from './logo.svg';
 import './App.css';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { io } from "socket.io-client";
-import * as d3 from 'd3';
 import { graphviz } from 'd3-graphviz';
 
 
@@ -35,8 +33,13 @@ class App extends React.Component {
     document.body.appendChild(script);
 
     this.initSocket();
-    //this.renderGraph();
+    this.renderGraph();
   }
+
+  componentDidUpdate() {
+    this.renderGraph();    
+  }
+
 
   initSocket = () => {
     let socket = io(url, {
@@ -90,9 +93,9 @@ class App extends React.Component {
     graphviz(`#graph`).renderDot(`${this.state.cdot}`);
   }
 
+
   render()  {
-    //this.renderGraph();
-  
+
     return (
       <div className="App">
         <div className='title'>Visualization of Precedence Graph</div>
@@ -108,7 +111,6 @@ class App extends React.Component {
           <button onClick={() => this.move(1)}>next</button>
         </div>
         <div><b>Logical Time : </b>{this.state.logicalTime.seconds} seconds {this.state.logicalTime.nanoseconds} nsecs</div>
-        {this.state.cdot}
         <div id='graph'></div>
       </div>
     );
