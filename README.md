@@ -34,5 +34,3 @@ To use visualizer, you have to go through following steps.
    These programs are in reactor-ts/dist/benchmark  
    For example, if you want to 'Sieve.js' in the folder,  
    `node reactor-ts/dist/benchmark/Sieve.js`  
-5) Click the 'reload' buttons and check the dependency graph  
-(Warning: This project is uncompleted. In actual, the web page have to show dynamic changes of reactor)  
