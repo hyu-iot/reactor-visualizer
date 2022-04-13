@@ -5,8 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { io } from "socket.io-client";
 import * as d3 from 'd3';
 import { graphviz } from 'd3-graphviz';
-//import { Graphviz }from "graphviz-react";
-//import { Graph } from "./components/Graph";
+
 
 
 const url = 'http://localhost:8080';
@@ -27,8 +26,16 @@ class App extends React.Component {
 
 
   componentDidMount() {
+
+    const script = document.createElement('script');
+
+    script.src = "https://unpkg.com/@hpcc-js/wasm/dist/index.min.js";
+    script.type = "javascript/worker"
+
+    document.body.appendChild(script);
+
     this.initSocket();
-    //this.renderGraph();
+    this.renderGraph();
   }
 
   initSocket = () => {
@@ -78,12 +85,13 @@ class App extends React.Component {
     else this.state.socket.emit("requestDot", this.state.startPos + this.state.idx + diff - 1);
   }
 
-  // renderGraph() {
-  //   graphviz(`#graph`).renderDot(this.state.cdot);
-  // }
+  renderGraph() {
+    //graphviz(`#graph`).renderDot(this.state.cdot);
+    graphviz(`#graph`).renderDot(`${this.state.cdot}`);
+  }
 
   render()  {
-    
+    this.renderGraph();
   
     return (
       <div className="App">
@@ -100,7 +108,7 @@ class App extends React.Component {
           <button onClick={() => this.move(1)}>next</button>
         </div>
         <div><b>Logical Time : </b>{this.state.logicalTime.seconds} seconds {this.state.logicalTime.nanoseconds} nsecs</div>
-        {this.state.cdot}
+
         <div id='graph'></div>
       </div>
     );
